@@ -1,0 +1,22 @@
+name: PR Quality
+
+# Thin caller. All logic lives in SudoMedic/ci-workflows.
+on:
+  pull_request:
+    branches: [dev, prod]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+concurrency:
+  # New pushes cancel stale lint runs, but never cancel a review in progress.
+  group: pr-quality-${{ github.event.pull_request.number }}-${{ github.event.action == 'synchronize' && 'push' || 'open' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  quality:
+    uses: SudoMedic/ci-workflows/.github/workflows/pr-quality.yml@prod
